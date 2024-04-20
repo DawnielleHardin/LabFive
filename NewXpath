@@ -1,0 +1,23 @@
+import requests
+from bs4 import BeautifulSoup
+from lxml import etree
+
+url = "https://www.gutenberg.org/cache/epub/580/pg580-images.html"
+
+# Webpage content
+response = requests.get(url)
+html_content = response.text
+
+# Get HTML content using BeautifulSoup
+soup = BeautifulSoup(html_content, "html.parser")
+
+# Convert the soup object to an lxml etree object
+dom = etree.HTML(str(soup))
+
+# XPath for the body of the HTML document
+body_xpath = "/html/body"
+
+# Get content of the body using XPath
+body_content = dom.xpath("string(" + body_xpath + ")")
+
+print(body_content)
