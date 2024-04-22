@@ -1,62 +1,44 @@
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
-from urllib.parse import urljoin
 
+# List of URLs
+urls = [
+    "https://www.gutenberg.org/cache/epub/580/pg580-images.html",
+    "https://www.gutenberg.org/cache/epub/730/pg730-images.html",
+    "https://www.gutenberg.org/cache/epub/967/pg967-images.html",
+    "https://www.gutenberg.org/cache/epub/700/pg700-images.html",
+    "https://www.gutenberg.org/cache/epub/917/pg917-images.html",
+    "https://www.gutenberg.org/cache/epub/968/pg968-images.html",
+    "https://www.gutenberg.org/cache/epub/821/pg821-images.html",
+    "https://www.gutenberg.org/cache/epub/766/pg766-images.html",
+    "https://www.gutenberg.org/cache/epub/1023/pg1023-images.html",
+    "https://www.gutenberg.org/cache/epub/786/pg786-images.html",
+    "https://www.gutenberg.org/cache/epub/963/pg963-images.html",
+    "https://www.gutenberg.org/cache/epub/98/pg98-images.html",
+    "https://www.gutenberg.org/cache/epub/1400/pg1400-images.html",
+    "https://www.gutenberg.org/cache/epub/883/pg883-images.html",
+    "https://www.gutenberg.org/cache/epub/564/pg564-images.html"
+]
 
-url = "https://www.gutenberg.org/cache/epub/786/pg786-images.html"
+# Loop through each URL
+for url in urls:
+    # Get the webpage content
+    response = requests.get(url)
+    html_content = response.text
 
-webpage = requests.get(url)
-soup = BeautifulSoup(webpage.content, "html.parser")
-dom = etree.HTML(str(soup))
+    # Parse the HTML content using BeautifulSoup
+    soup = BeautifulSoup(html_content, "html.parser")
 
-base_xpath = '//*[@id="mainaside"]/html/body'
+    # Convert the soup object to an lxml etree object
+    dom = etree.HTML(str(soup))
 
-# Find all elements matching the base XPath pattern with any index
-for index in range(1, 10):  # Adjust the range as needed based on the expected maximum index
-    # Construct the full XPath for each iteration
-    full_xpath = f"{base_xpath}[{index}]/a/text()"
+    # XPath expression for the body excluding specific elements
+    body_xpath = "/html/body"
 
-    # Use XPath to extract data from each element
-    res = dom.xpath(full_xpath)
+    # Extract the content of the body using XPath
+    body_content = dom.xpath("string(" + body_xpath + ")")
 
-    # Check if the result is not empty before printing
-    if res:
-        for i in res:
-            print(i)
-for index in range(1, 10):  # Adjust the range as needed based on the expected maximum index
-    # Construct the full XPath for each iteration
-    full_xpath = f"{base_xpath}[{index}]/a/@href"
-
-    # Use XPath to extract href attributes from each element
-    res = dom.xpath(full_xpath)
-
-    # Check if the result is not empty before printing
-    if res:
-        for href in res:
-            print(href)
-
-base_xpath_href = '//*[@id="mainaside"]/html/body'
-
-# Find all href attributes under the base XPath pattern with any index
-for index in range(1, 10):  # Adjust the range as needed based on the expected maximum index
-    full_xpath_href = f"{base_xpath_href}[{index}]/a/@href"
-    res_href = dom.xpath(full_xpath_href)
-
-    if res_href:
-        for link in res_href:
-            # Construct the absolute URL from the relative href
-            absolute_url = urljoin(url, link)
-
-            linked_page = requests.get(absolute_url)
-            linked_soup = BeautifulSoup(linked_page.content, "html.parser")
-
-            base_css_selector_p = '#mainaside article div:nth-child(2) div:nth-child(2) p'
-            all_p_tags = linked_soup.select(base_css_selector_p)
-
-            # Print the text of the first two <p> elements from each linked page
-            for p_tag in all_p_tags[:2]:
-                print(p_tag.text.strip())
-                print()
-
-
+    # Print the content of the body along with the URL
+    print(f"URL: {url}")
+    print(body_content)
